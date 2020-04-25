@@ -20,14 +20,7 @@ for i in range(m):
 visited = [False] * n
 
 
-def dfs(u, prev=0):
-    visited[u - 1] = True
-    for v in graph[u]:
-        if not visited[v - 1]:
-            dfs(v, u)
-        elif v != prev:
-            print('NO')
-            exit()
+
 
 
 dfs(a)

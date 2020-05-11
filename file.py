@@ -90,6 +90,7 @@ class NewUser(QWidget):
         for id in self.user.groups:
             data['groups'][id] = id
         base.put('/users/', self.user.email, data)
+        self.user = User()
 
     def close_all(self):
         sys.exit(app.exec_())
@@ -168,6 +169,7 @@ class NewGroup(QWidget):
         for email in self.group.members:
             data['users'][email] = email
         base.put('/groups/', self.group.name, data)
+        self.group = Group()
 
     def close_all(self):
         sys.exit(app.exec_())
@@ -183,6 +185,7 @@ class Event():
         self.date = ''
         self.time_begin = ''
         self.time_end = ''
+        self.faq = {}
 
 
 class NewEvent(QWidget):
@@ -257,6 +260,21 @@ class NewEvent(QWidget):
         self.timee_gap = QLineEdit(self)
         self.timee_gap.move(500, 360)
 
+        self.faq_label = QLabel(self)
+        self.faq_label.setText('FAQ по одному, первый блок - вопрос, второй - ответ:')
+        self.faq_label.move(80, 470)
+
+        self.faq_ask_gap = QLineEdit(self)
+        self.faq_ask_gap.move(80, 500)
+
+        self.faq_answer_gap = QLineEdit(self)
+        self.faq_answer_gap.move(300, 500)
+
+        self.add_group_btn = QPushButton('Добавить вопрос', self)
+        self.add_group_btn.resize(self.add_group_btn.sizeHint())
+        self.add_group_btn.move(75, 530)
+        self.add_group_btn.clicked.connect(self.add_group)
+
         self.btn1 = QPushButton('Добавить в базу', self)
         self.btn1.resize(self.btn1.sizeHint())
         self.btn1.move(75, 580)
@@ -272,6 +290,18 @@ class NewEvent(QWidget):
         if new_group == '':
             return
         self.event.groups.append(new_group)
+        self.group_gap.setText('')
+
+    def add_faq(self):
+        question = self.faq_ask_gap.text()
+        if question == '':
+            return
+        self.faq_ask_gap.setText('')
+        answer = self.faq_answer_gap.text()
+        if answer == '':
+            return
+        self.faq_answer_gap.setText('')
+        self.faq[question] = answer
         self.group_gap.setText('')
 
     def clear_all(self):
@@ -320,11 +350,13 @@ class NewEvent(QWidget):
             'time': {
                 'begin': self.event.time_begin,
                 'end': self.event.time_end
-            }
+            },
+            'faq': self.faq
         }
         for id in self.event.groups:
             data['invited_groups'][id] = id
         base.put('/events/', self.event.name, data)
+        self.event = Event()
 
     def close_all(self):
         sys.exit(app.exec_())
